@@ -173,67 +173,70 @@ app.get('/api/tanks', async (req, res) => {
     res.json(tanks);
 })
 app.post('/api/tank/new', async (req, res) => {
-    const familyId: string = req.body.familyId;
+    const { familyId, email, cost, date, milage } = req.body;
+
     if (!familyId) {
         console.log('[server]: Family ID not found');
         res.status(400).json({ error: 'Family ID not found' });
         return;
     }
+
     const family = await familiesCollection.findOne({ _id: ObjectId.createFromHexString(familyId) });
     if (!family) {
         console.log('[server]: Family not found');
         res.status(404).json({ error: 'Family not found' });
         return;
     }
-    const userEmail: string = req.body.email;
-    if (!userEmail) {
-        console.log('[server]: User email not found');
-        res.status(400).json({ error: 'User email not found' });
-        return;
-    }
-    const user = await userCollection.findOne({ email: userEmail });
+
+    const user = await userCollection.findOne({ email });
     if (!user) {
         console.log('[server]: User not found');
         res.status(404).json({ error: 'User not found' });
         return;
     }
-    const cost: number = parseInt(req.body.cost);
-    if (isNaN(cost)) {
+
+    const parsedCost = parseInt(cost);
+    if (isNaN(parsedCost)) {
         console.log('[server]: Cost is not a number');
         res.status(400).json({ error: 'Cost is not a number' });
         return;
     }
-    const date: Date = new Date(req.body.date);
-    if (!date) {
+
+    const parsedDate = new Date(date);
+    if (!parsedDate) {
         console.log('[server]: Invalid date');
         res.status(400).json({ error: 'Invalid date' });
         return;
     }
-    const milage: number = parseInt(req.body.milage);
-    if (isNaN(milage)) {
+
+    const parsedMilage = parseInt(milage);
+    if (isNaN(parsedMilage)) {
         console.log('[server]: Milage is not a number');
         res.status(400).json({ error: 'Milage is not a number' });
         return;
     }
-    const tanks = await tanksCollection.find({ familyId: new ObjectId(familyId) }).sort({ date: -1 }).limit(1).toArray();
-    const lastTank = tanks[0];
+
+    const lastTank = await tanksCollection.find({ familyId: new ObjectId(familyId) }).sort({ date: -1 }).limit(1).toArray();
     const trips = await tripsCollection.find({
         date: {
-            $gte: lastTank?.date,
-            $lte: date
+            $gte: lastTank?.[0]?.date,
+            $lte: parsedDate
         },
         userId: new ObjectId(user?._id)
     }).toArray();
+
     const tank: Tank = {
         familyId: new ObjectId(family?._id),
         payedUserId: new ObjectId(user?._id),
-        cost: cost,
-        date: date,
+        cost: parsedCost,
+        date: parsedDate,
         trips: trips.map(trip => new ObjectId(trip._id)),
-        milage: milage,
+        milage: parsedMilage,
         users: trips.map(trip => ({ userId: new ObjectId(trip.userId), payed: false }))
     };
+
     const result = await tanksCollection.insertOne(tank);
+
     if (!result.acknowledged) {
         console.log('[server]: Error inserting tank');
         res.status(500).json({ error: 'Error inserting tank' });
