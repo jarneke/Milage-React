@@ -12,26 +12,44 @@ app.use(express.json());
 app.use(cors());
 dotenv.config();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-app.get('/api/users/login', async (req, res) => {
-    const user = await userCollection.findOne({ email: req.body.email });
+app.post('/api/users/login', async (req, res) => {
+    const email = req.body.email;
+    if (!email) {
+        console.log('[server]: Email not found');
+        res.status(400).json({ error: 'Email not found' });
+        return;
+    }
+    const user = await userCollection.findOne({ email });
     if (!user) {
         console.log('[server]: User not found');
         res.status(404).json({ error: 'User not found' });
         return;
     }
-    const validPassword = await bcrypt.compare(req.body.password, user.password);
+    const password = req.body.password;
+    if (!password) {
+        console.log('[server]: Password not found');
+        res.status(400).json({ error: 'Password not found' });
+        return;
+    }
+    const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
         console.log('[server]: Invalid password');
         res.status(400).json({ error: 'Invalid password' });
         return;
     }
-    const token = jwt.sign({ email: user.email }, 'secret', { expiresIn: '1h' });
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        console.log('[server]: JWT_SECRET not set');
+        res.status(500).json({ error: 'JWT_SECRET not set' });
+        return;
+    }
+    const token = jwt.sign({ email: user.email }, secret, { expiresIn: '1h' });
     res.json({ token });
 })
 app.post('/api/users/register', async (req, res) => {
@@ -167,7 +185,7 @@ app.post('/api/tank/new', async (req, res) => {
         res.status(404).json({ error: 'Family not found' });
         return;
     }
-    const userEmail: string = req.body.userEmail;
+    const userEmail: string = req.body.email;
     if (!userEmail) {
         console.log('[server]: User email not found');
         res.status(400).json({ error: 'User email not found' });
@@ -197,7 +215,7 @@ app.post('/api/tank/new', async (req, res) => {
         res.status(400).json({ error: 'Milage is not a number' });
         return;
     }
-    const tanks = await tanksCollection.find({ familyId: new ObjectId(familyId) }).sort({ date: -1 }).limit(1);
+    const tanks = await tanksCollection.find({ familyId: new ObjectId(familyId) }).sort({ date: -1 }).limit(1).toArray();
     const lastTank = tanks[0];
     const trips = await tripsCollection.find({
         date: {
