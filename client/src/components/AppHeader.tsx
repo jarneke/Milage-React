@@ -6,7 +6,7 @@ interface Props {
   appName: string;
   navItems?: string[];
 }
-function HomeHeader({ className, imageUrl, appName, navItems }: Props) {
+function AppHeader({ className, imageUrl, appName, navItems }: Props) {
   const headerClasses: string = "d-flex justify-content-between p-2";
   return (
     <>
@@ -41,4 +41,4 @@ function HomeHeader({ className, imageUrl, appName, navItems }: Props) {
   );
 }
 
-export default HomeHeader;
+export default AppHeader;

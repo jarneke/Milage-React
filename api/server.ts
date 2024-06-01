@@ -19,28 +19,22 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/users/login', async (req, res) => {
-    const email = req.body.email;
-    if (!email) {
-        console.log('[server]: Email not found');
-        res.status(400).json({ error: 'Email not found' });
+    const { email, password } = req.body;
+    if (!email || !password) {
+        console.log('[server]: Email or password not found');
+        res.status(400).json({ error: 'Email or password not found' });
         return;
     }
     const user = await userCollection.findOne({ email });
     if (!user) {
         console.log('[server]: User not found');
-        res.status(404).json({ error: 'User not found' });
-        return;
-    }
-    const password = req.body.password;
-    if (!password) {
-        console.log('[server]: Password not found');
-        res.status(400).json({ error: 'Password not found' });
+        res.status(404).json({ error: 'No account found for this e-mail' });
         return;
     }
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
         console.log('[server]: Invalid password');
-        res.status(400).json({ error: 'Invalid password' });
+        res.status(400).json({ error: 'Invalid Email or password' });
         return;
     }
     const secret = process.env.JWT_SECRET;
@@ -53,24 +47,31 @@ app.post('/api/users/login', async (req, res) => {
     res.json({ token });
 })
 app.post('/api/users/register', async (req, res) => {
-    const user = await userCollection.findOne({ email: req.body.email });
-    if (user) {
-        console.log('[server]: User already exists');
-        res.status(400).json({ error: 'User already exists' });
-        return;
-    }
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const newUser: User = {
-        email: req.body.email,
-        password: hashedPassword,
-        role: "USER"
-    };
     try {
+        const { fName, lName, email, password } = req.body;
+        if (!fName || !lName || !email || !password) {
+            console.log('[server]: Missing fields');
+            res.status(400).json({ error: 'Please fill in all fields' });
+            return;
+        }
+        const user = await userCollection.findOne({ email: `${email}`.toLowerCase() });
+        if (user) {
+            console.log('[server]: User already exists');
+            res.status(409).json({ error: 'User already exists' });
+            return;
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser: User = {
+            fName,
+            lName,
+            email,
+            password: hashedPassword,
+            role: "USER"
+        };
         await userCollection.insertOne(newUser);
-        console.log('[server]: User created');
-        res.status(201).json({ message: 'User created' });
+        res.json({ message: 'User created successfully' });
     } catch (error) {
-        console.error('[server]: Error creating user:', error);
+        console.log('[server]: Error creating user:', error);
         res.status(500).json({ error: 'Error creating user' });
     }
 })

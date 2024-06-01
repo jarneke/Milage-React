@@ -19,6 +19,9 @@ export interface Tank {
 export type userIdPayed = { userId: ObjectId, payed: boolean };
 export interface User {
     _id?: ObjectId;
+    fName: string;
+    lName: string;
+    familyId?: ObjectId;
     email: string;
     password: string;
     role: "ADMIN" | "USER";

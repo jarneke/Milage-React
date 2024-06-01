@@ -38,21 +38,30 @@ export const familiesCollection: Collection<Family> = db.collection<Family>("fam
 async function createInitialUsers() {
     console.log("[server]: Creating initial users");
 
-    const { ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
+    const { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_FIRST_NAME, ADMIN_LAST_NAME } = process.env;
     if (!ADMIN_EMAIL) {
         console.log("[server]: ADMIN_EMAIL not set");
     }
     if (!ADMIN_PASSWORD) {
         console.log("[server]: ADMIN_PASSWORD not set");
     }
-    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    if (!ADMIN_FIRST_NAME) {
+        console.log("[server]: ADMIN_FIRST_NAME not set");
+    }
+    if (!ADMIN_LAST_NAME) {
+        console.log("[server]: ADMIN_LAST_NAME not set");
+    }
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD || !ADMIN_FIRST_NAME || !ADMIN_LAST_NAME) {
+        console.log("[server]: Missing environment variables");
         return;
     }
 
     const admin: User = {
-        email: ADMIN_EMAIL,
+        email: ADMIN_EMAIL.toLowerCase(),
         password: await bcrypt.hash(ADMIN_PASSWORD, 10),
-        role: "ADMIN"
+        role: "ADMIN",
+        fName: ADMIN_FIRST_NAME,
+        lName: ADMIN_LAST_NAME
     };
 
     const user = await userCollection.findOne({ email: ADMIN_EMAIL });
