@@ -1,11 +1,9 @@
 import { Key, Mail } from "@mui/icons-material";
-import CloseIcon from "@mui/icons-material/Close";
-import WarningIcon from "@mui/icons-material/Warning";
-import { IconButton, Input, colors } from "@mui/joy";
+import { Input } from "@mui/joy";
 import React, { useEffect, useState } from "react";
 import LabelFor from "./LabelFor";
 import Button from "@mui/joy/Button";
-import Alert from "@mui/joy/Alert";
+import MultiAlert from "./MultiAlert";
 
 interface AlertType {
   show: boolean;
@@ -155,25 +153,11 @@ function LoginForm() {
         >
           Login
         </Button>
-        {alert.show && (
-          <Alert
-            className="col-12"
-            style={{
-              backgroundColor: "#FF000055",
-              color: "#F0F0F0",
-            }}
-            startDecorator={<WarningIcon />}
-            endDecorator={
-              <React.Fragment>
-                <IconButton variant="soft" size="sm" color="danger">
-                  <CloseIcon />
-                </IconButton>
-              </React.Fragment>
-            }
-          >
-            {alert.message}
-          </Alert>
-        )}
+        <MultiAlert
+          show={alert.show}
+          type={alert.type}
+          message={alert.message}
+        />
       </div>
     </form>
   );

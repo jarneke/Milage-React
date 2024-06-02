@@ -3,7 +3,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { User } from "../../../api/types";
 import MenuElem from "./MenuElem";
-import React, { ReactNode } from "react";
 
 interface Props {
   className?: string | undefined;

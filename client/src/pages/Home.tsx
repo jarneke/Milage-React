@@ -1,7 +1,5 @@
-import { useScroll } from "framer-motion";
 import HalfFadeBg from "../components/HalfFadeBg";
 import HomeHeader from "../components/HomeHeader";
-import Reveal from "../components/Reveal";
 import Parallax from "../components/Parallax";
 
 function Home() {

@@ -46,6 +46,7 @@ function Parallax() {
           bottom: 0,
           zIndex: 0,
           backgroundImage: `url(/images/parallax-home/background-layer.webp)`,
+          backgroundSize: "cover",
         }}
       ></motion.div>
       <div
@@ -57,6 +58,7 @@ function Parallax() {
           bottom: 0,
           zIndex: 20,
           backgroundImage: `url(/images/parallax-home/foreground-layer.webp)`,
+          backgroundSize: "cover",
         }}
       ></div>
     </div>
