@@ -22,7 +22,16 @@ function LoginForm() {
   });
 
   useEffect(() => {
-    localStorage.getItem("token") && (window.location.href = "/app");
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      console.log(decodedToken.exp * 1000);
+      console.log(Date.now());
+
+      if (decodedToken.exp * 1000 > Date.now()) {
+        window.location.href = "/app";
+      }
+    }
   });
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -55,7 +64,7 @@ function LoginForm() {
     }
   };
   return (
-    <form onSubmit={handleFormSubmit} className="text-light">
+    <form onSubmit={handleFormSubmit} className="text-light col-12">
       <h3
         className="Display-3"
         style={{ color: "#F0F0F099", fontWeight: "bold", fontSize: "1.3rem" }}
@@ -83,7 +92,7 @@ function LoginForm() {
           Register
         </a>
       </h3>
-      <div className="d-flex flex-wrap gap-3 col-12 col-sm-10 col-md-8">
+      <div className="d-flex flex-wrap gap-3 col-12 col-sm-10 col-md-5">
         <div className="col-12">
           <LabelFor HTMLFor="email" label="Email" />
           <Input

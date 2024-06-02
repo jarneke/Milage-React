@@ -3,6 +3,7 @@ import HomeHeader from "../components/HomeHeader";
 import LoginForm from "../components/LoginForm";
 
 function Login() {
+  document.title = "Milage | Login";
   return (
     <HalfFadeBg imageUrl="/images/bg-light.webp">
       <HomeHeader
@@ -14,7 +15,6 @@ function Login() {
         <div className="d-flex flex-wrap gap-3">
           <LoginForm />
         </div>
-        <div className="right"></div>
       </div>
     </HalfFadeBg>
   );

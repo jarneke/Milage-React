@@ -5,6 +5,7 @@ import RegisterTrip from "./pages/RegisterTrip";
 import NoPage from "./pages/NoPage";
 import Register from "./pages/Register";
 import AppPage from "./pages/App";
+import NeedsAuthRoute from "./components/NeedsAuthRoute";
 
 function App() {
   return (

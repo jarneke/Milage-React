@@ -1,8 +1,8 @@
-import { FitScreen } from "@mui/icons-material";
 import HalfFadeBg from "../components/HalfFadeBg";
 import HomeHeader from "../components/HomeHeader";
 import { useRef } from "react";
 function NoPage() {
+  document.title = "Milage | 404";
   const ref = useRef(null);
   return (
     <HalfFadeBg

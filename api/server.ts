@@ -22,7 +22,7 @@ app.post('/api/users/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
         console.log('[server]: Email or password not found');
-        res.status(400).json({ error: 'Email or password not found' });
+        res.status(400).json({ error: 'Please fill in all fields' });
         return;
     }
     const user = await userCollection.findOne({ email });
@@ -73,6 +73,34 @@ app.post('/api/users/register', async (req, res) => {
     } catch (error) {
         console.log('[server]: Error creating user:', error);
         res.status(500).json({ error: 'Error creating user' });
+    }
+})
+
+app.get("/api/users/loggedIn", async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        console.log('[server]: No token provided');
+        res.status(401).json({ error: 'No token provided' });
+        return;
+    }
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        console.log('[server]: JWT_SECRET not set');
+        res.status(500).json({ error: 'JWT_SECRET not set' });
+        return;
+    }
+    try {
+        const decoded = jwt.verify(token, secret) as { email: string };
+        const user = await userCollection.findOne({ email: `${decoded.email}`.toLowerCase() });
+        if (!user) {
+            console.log('[server]: User not found');
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        res.json(user);
+    } catch (error) {
+        console.log('[server]: Error verifying token:');
+        res.status(500).json({ error: 'Error verifying token' });
     }
 })
 app.get('/api/trips', async (req, res) => {

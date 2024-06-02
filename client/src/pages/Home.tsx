@@ -5,6 +5,7 @@ import Reveal from "../components/Reveal";
 import Parallax from "../components/Parallax";
 
 function Home() {
+  document.title = "Milage | Home";
   return (
     <>
       <HalfFadeBg imageUrl="/images/bg-light.webp" />

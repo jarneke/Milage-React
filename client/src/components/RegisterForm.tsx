@@ -50,37 +50,48 @@ function RegisterForm() {
     setConfirmPassword(event.target.value);
     setPasswordMatch(event.target.value === password);
   }
-  function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (password !== confirmPassword) {
+    if (fName === "" || lName === "" || email === "" || password === "") {
+      setAlert({
+        show: true,
+        type: "Error",
+        message: "Please fill in all fields",
+      });
       return;
     }
-
-    fetch("/api/users/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ fName, lName, email, password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          setAlert({ show: true, type: "Error", message: data.error });
-        } else {
-          setAlert({ show: true, type: "Success", message: data.message });
-          setTimeout(() => {
-            window.location.href = "/login";
-          }, 3000);
-        }
-      })
-      .catch((error) => {
-        setAlert({ show: true, type: "Error", message: error.message });
+    if (!passwordMatch) {
+      setAlert({
+        show: true,
+        type: "Error",
+        message: "Passwords do not match",
       });
+      return;
+    }
+    try {
+      setAlert({ show: true, type: "Info", message: "Creating account..." });
+      const response = await fetch("/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fName, lName, email, password }),
+      });
+      if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error);
+      }
+      setAlert({
+        show: true,
+        type: "Success",
+        message: "Account created successfully",
+      });
+    } catch (error: any) {
+      setAlert({ show: true, type: "Error", message: error.message });
+    }
   }
   return (
-    <form onSubmit={handleFormSubmit} className="text-light">
+    <form onSubmit={handleFormSubmit} className="text-light col-12">
       <h3
         className="Display-3"
         style={{ color: "#F0F0F099", fontWeight: "bold", fontSize: "1.3rem" }}
@@ -108,60 +119,62 @@ function RegisterForm() {
           Login
         </a>
       </h3>
-      <div className="d-flex flex-wrap gap-3 col-12 col-sm-10 col-md-8">
-        <div style={{ width: "calc(50% - .5rem)" }}>
-          <LabelFor HTMLFor="fName" label="First Name" />
-          <Input
-            value={fName}
-            onChange={handleFNameChange}
-            type="text"
-            placeholder="John"
-            startDecorator={<Badge />}
-            sx={{
-              "&::before": {
-                border: "3px solid #FFA500",
-                transform: "scaleX(0)",
-                left: "5",
-                right: "5",
-                bottom: 0,
-                top: "unset",
-                transition: "transform .15s cubic-bezier(0.1,0.9,0.2,1)",
-                borderRadius: 0,
-                borderBottomLeftRadius: "40px 20px",
-                borderBottomRightRadius: "40px 20px",
-              },
-              "&:focus-within::before": {
-                transform: "scaleX(1)",
-              },
-            }}
-          />
-        </div>
-        <div style={{ width: "calc(50% - 0.5rem)" }}>
-          <LabelFor HTMLFor="lName" label="Last Name" />
-          <Input
-            value={lName}
-            onChange={handleLNameChange}
-            type="text"
-            placeholder="Doe"
-            startDecorator={<Badge />}
-            sx={{
-              "&::before": {
-                border: "3px solid #FFA500",
-                transform: "scaleX(0)",
-                left: "5",
-                right: "5",
-                bottom: 0,
-                top: "unset",
-                transition: "transform .15s cubic-bezier(0.1,0.9,0.2,1)",
-                borderRadius: 0,
-                borderBottomLeftRadius: "40px 20px",
-                borderBottomRightRadius: "40px 20px",
-              },
-              "&:focus-within::before": {
-                transform: "scaleX(1)",
-              },
-            }}
-          />
+      <div className="d-flex flex-wrap gap-3 col-12 col-sm-10 col-md-5">
+        <div className="col-12 d-flex justify-content-between">
+          <div style={{ width: "calc(50% - 0.5rem)" }}>
+            <LabelFor HTMLFor="fName" label="First Name" />
+            <Input
+              value={fName}
+              onChange={handleFNameChange}
+              type="text"
+              placeholder="John"
+              startDecorator={<Badge />}
+              sx={{
+                "&::before": {
+                  border: "3px solid #FFA500",
+                  transform: "scaleX(0)",
+                  left: "5",
+                  right: "5",
+                  bottom: 0,
+                  top: "unset",
+                  transition: "transform .15s cubic-bezier(0.1,0.9,0.2,1)",
+                  borderRadius: 0,
+                  borderBottomLeftRadius: "40px 20px",
+                  borderBottomRightRadius: "40px 20px",
+                },
+                "&:focus-within::before": {
+                  transform: "scaleX(1)",
+                },
+              }}
+            />
+          </div>
+          <div style={{ width: "calc(50% - 0.5rem)" }}>
+            <LabelFor HTMLFor="lName" label="Last Name" />
+            <Input
+              value={lName}
+              onChange={handleLNameChange}
+              type="text"
+              placeholder="Doe"
+              startDecorator={<Badge />}
+              sx={{
+                "&::before": {
+                  border: "3px solid #FFA500",
+                  transform: "scaleX(0)",
+                  left: "5",
+                  right: "5",
+                  bottom: 0,
+                  top: "unset",
+                  transition: "transform .15s cubic-bezier(0.1,0.9,0.2,1)",
+                  borderRadius: 0,
+                  borderBottomLeftRadius: "40px 20px",
+                  borderBottomRightRadius: "40px 20px",
+                },
+                "&:focus-within::before": {
+                  transform: "scaleX(1)",
+                },
+              }}
+            />
+          </div>
         </div>
         <div className="col-12" style={{ marginTop: "-.25rem" }}>
           <LabelFor HTMLFor="email" label="Email" />
