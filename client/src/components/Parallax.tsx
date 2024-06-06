@@ -8,7 +8,7 @@ function Parallax() {
     offset: ["start start", "end start"],
   });
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   return (
     <div
@@ -25,8 +25,7 @@ function Parallax() {
       <motion.h1
         className="display-1"
         style={{
-          display: "flex",
-          alignItems: "center",
+          marginTop: "5rem",
           y: textY,
           color: "#F0F0F0",
           fontWeight: "bold",
@@ -46,7 +45,7 @@ function Parallax() {
           bottom: 0,
           zIndex: 0,
           backgroundImage: `url(/images/parallax-home/background-layer.webp)`,
-          backgroundSize: "cover",
+          backgroundSize: "fill",
         }}
       ></motion.div>
       <div
@@ -58,7 +57,7 @@ function Parallax() {
           bottom: 0,
           zIndex: 20,
           backgroundImage: `url(/images/parallax-home/foreground-layer.webp)`,
-          backgroundSize: "cover",
+          backgroundSize: "fill",
         }}
       ></div>
     </div>

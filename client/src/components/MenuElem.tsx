@@ -7,8 +7,8 @@ function MenuElem({ label, href }: Props) {
   return (
     <a
       href={href}
-      className="btn btn-primary btn-lg w-100 border-0 fs-3"
-      style={{ width: "100%", backgroundColor: "#FFA50055" }}
+      className="w-100 text-decoration-none text-light fs-3 p-2 rounded"
+      style={{ width: "100%", backgroundColor: "#21303bBB" }}
     >
       {label}
     </a>

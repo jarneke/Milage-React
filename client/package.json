@@ -19,6 +19,7 @@
     "bootstrap": "^5.3.3",
     "framer-motion": "^11.2.10",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.1",
@@ -53,6 +54,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/mongodb": "^4.0.7",
     "@types/react-router-dom": "^5.3.3"
   }
 }

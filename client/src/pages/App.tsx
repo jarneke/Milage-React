@@ -1,37 +1,10 @@
-import React, { useEffect } from "react";
 import HalfFadeBg from "../components/HalfFadeBg";
 import AppHeader from "../components/AppHeader";
-import { User } from "../../../api/types";
+import Collapsible from "../components/Collapsible";
+import RegisterTripForm from "../components/RegisterTripForm";
 
 function AppPage() {
-  const [user, setUser] = React.useState<User>();
   document.title = "Milage | App";
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const response = await fetch("/api/users/loggedIn", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      if (!response.ok) {
-        window.location.href = "/login";
-      }
-      const data = await response.json();
-      setUser(data);
-    };
-
-    if (!user) {
-      fetchUser().catch((error) => {
-        console.error(error);
-        throw error;
-      });
-    }
-
-    console.log(user);
-  }, [user]);
 
   return (
     <>
@@ -39,8 +12,40 @@ function AppPage() {
       <AppHeader
         imageUrl="/images/logo-orange.webp"
         appName="Milage"
-        user={user}
+        navItems={[
+          "home",
+          "profile",
+          "My Groups",
+          "My Cars",
+          "My Trips",
+          "test",
+        ]}
       />
+      <section className="container col-12">
+        <section className="row g-3">
+          <div className="col-12 col-md-6 mb-1 mb-md-0">
+            <Collapsible title="Register a trip">
+              <RegisterTripForm />
+            </Collapsible>
+          </div>
+          <div className="col-12 col-md-6">
+            <Collapsible title="My Groups">
+              <AppHeader
+                imageUrl="/images/logo-orange.webp"
+                appName="Milage"
+                navItems={[
+                  "home",
+                  "profile",
+                  "My Groups",
+                  "My Cars",
+                  "My Trips",
+                  "test",
+                ]}
+              />
+            </Collapsible>
+          </div>
+        </section>
+      </section>
     </>
   );
 }

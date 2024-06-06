@@ -1,305 +1,34 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { connect, familiesCollection, tanksCollection, tripsCollection, userCollection } from "./db";
-import { Tank, Trip, User } from "./types";
-import { ObjectId } from "mongodb";
+import { client, connect, disconnect } from "./db";
+import LoginRouters from "./routers/login";
+import CarsRouters from "./routers/cars";
+
+dotenv.config();
+export const JWT_KEY: string = `${process.env.JWT_SECRET}`;
 
 const app = express();
-app.use(express.json());
-app.use(cors());
-dotenv.config();
-
 const port = process.env.PORT || 3001;
+app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
+app.get("/", (req, res) => {
+    res.send("Hello World!");
 });
 
-app.post('/api/users/login', async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        console.log('[server]: Email or password not found');
-        res.status(400).json({ error: 'Please fill in all fields' });
-        return;
-    }
-    const user = await userCollection.findOne({ email });
-    if (!user) {
-        console.log('[server]: User not found');
-        res.status(404).json({ error: 'No account found for this e-mail' });
-        return;
-    }
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-        console.log('[server]: Invalid password');
-        res.status(400).json({ error: 'Invalid Email or password' });
-        return;
-    }
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-        console.log('[server]: JWT_SECRET not set');
-        res.status(500).json({ error: 'JWT_SECRET not set' });
-        return;
-    }
-    const token = jwt.sign({ email: user.email }, secret, { expiresIn: '1h' });
-    res.json({ token });
-})
-app.post('/api/users/register', async (req, res) => {
-    try {
-        const { fName, lName, email, password } = req.body;
-        if (!fName || !lName || !email || !password) {
-            console.log('[server]: Missing fields');
-            res.status(400).json({ error: 'Please fill in all fields' });
-            return;
-        }
-        const user = await userCollection.findOne({ email: `${email}`.toLowerCase() });
-        if (user) {
-            console.log('[server]: User already exists');
-            res.status(409).json({ error: 'User already exists' });
-            return;
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser: User = {
-            fName,
-            lName,
-            email,
-            password: hashedPassword,
-            role: "USER"
-        };
-        await userCollection.insertOne(newUser);
-        res.json({ message: 'User created successfully' });
-    } catch (error) {
-        console.log('[server]: Error creating user:', error);
-        res.status(500).json({ error: 'Error creating user' });
-    }
-})
-
-app.get("/api/users/loggedIn", async (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-        console.log('[server]: No token provided');
-        res.status(401).json({ error: 'No token provided' });
-        return;
-    }
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-        console.log('[server]: JWT_SECRET not set');
-        res.status(500).json({ error: 'JWT_SECRET not set' });
-        return;
-    }
-    try {
-        const decoded = jwt.verify(token, secret) as { email: string };
-        const user = await userCollection.findOne({ email: `${decoded.email}`.toLowerCase() });
-        if (!user) {
-            console.log('[server]: User not found');
-            res.status(404).json({ error: 'User not found' });
-            return;
-        }
-        res.json(user);
-    } catch (error) {
-        console.log('[server]: Error verifying token:');
-        res.status(500).json({ error: 'Error verifying token' });
-    }
-})
-app.get('/api/trips', async (req, res) => {
-    const today = new Date();
-    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1);
-
-    if (!today || !lastMonth) {
-        res.status(500).json({ error: 'Error getting dates' });
-        return;
-    }
-
-    console.log(today, lastMonth);
-
-    const trips = await tripsCollection.find({
-        date: {
-            $gte: lastMonth,
-            $lte: today
-        }
-    }).toArray();
-
-    if (!trips || trips.length === 0) {
-        res.status(200).json({ message: 'No trips found' });
-        return;
-    }
-
-    res.json(trips);
-});
-app.post('/api/trip/new', async (req, res) => {
-    const user = await userCollection.findOne({ email: req.body.userEmail });
-    if (!user) {
-        console.log('[server]: User not found');
-        res.status(404).json({ error: 'User not found' });
-        return;
-    }
-    const { start, end, date } = req.body;
-    const startmilage: number = parseInt(start);
-    const endmilage: number = parseInt(end);
-    if (isNaN(startmilage) || isNaN(endmilage)) {
-        res.status(400).json({ error: 'Parsing error' });
-        return;
-    }
-    const trip: Trip = {
-        userId: new ObjectId(user?._id),
-        start: startmilage,
-        end: endmilage,
-        date: date ? date : new Date()
-    };
-    const result = await tripsCollection.insertOne(trip);
-    if (!result.acknowledged) {
-        console.log('[server]: Error inserting trip');
-        res.status(500).json({ error: 'Error inserting trip' });
-        return;
-    } else {
-        console.log('[server]: Trip inserted');
-        res.status(200).json({ message: 'Trip inserted' });
-    }
-
-});
-app.delete('/api/trip/delete', async (req, res) => {
-    const user = await userCollection.findOne({ email: req.body.userEmail });
-    if (!user) {
-        console.log('[server]: User not found');
-        res.status(404).json({ error: 'User not found' });
-        return;
-    }
-    const tripId: string = req.body.tripId;
-    if (!tripId) {
-        console.log('[server]: Trip ID not found');
-        res.status(400).json({ error: 'Trip ID not found' });
-        return;
-    }
-    const result = await tripsCollection.deleteOne({ _id: new ObjectId(tripId) });
-    if (!result.acknowledged) {
-        console.log('[server]: Error deleting trip');
-        res.status(500).json({ error: 'Error deleting trip' });
-        return;
-    } else {
-        console.log('[server]: Trip deleted');
-        res.status(200).json({ message: 'Trip deleted' });
-    }
-})
-app.get('/api/tanks', async (req, res) => {
-    const today = new Date();
-    const lastSixMonths = new Date(today.getFullYear(), today.getMonth() - 6);
-    if (!today || !lastSixMonths) {
-        res.status(500).json({ error: 'Error getting dates' });
-        return;
-    }
-    const tanks = await tanksCollection.find({
-        date: {
-            $gte: lastSixMonths,
-            $lte: today
-        }
-    }).toArray();
-    if (!tanks || tanks.length === 0) {
-        res.status(200).json({ message: 'No tanks found' });
-        return;
-    }
-    res.json(tanks);
-})
-app.post('/api/tank/new', async (req, res) => {
-    const { familyId, email, cost, date, milage } = req.body;
-
-    if (!familyId) {
-        console.log('[server]: Family ID not found');
-        res.status(400).json({ error: 'Family ID not found' });
-        return;
-    }
-
-    const family = await familiesCollection.findOne({ _id: ObjectId.createFromHexString(familyId) });
-    if (!family) {
-        console.log('[server]: Family not found');
-        res.status(404).json({ error: 'Family not found' });
-        return;
-    }
-
-    const user = await userCollection.findOne({ email });
-    if (!user) {
-        console.log('[server]: User not found');
-        res.status(404).json({ error: 'User not found' });
-        return;
-    }
-
-    const parsedCost = parseInt(cost);
-    if (isNaN(parsedCost)) {
-        console.log('[server]: Cost is not a number');
-        res.status(400).json({ error: 'Cost is not a number' });
-        return;
-    }
-
-    const parsedDate = new Date(date);
-    if (!parsedDate) {
-        console.log('[server]: Invalid date');
-        res.status(400).json({ error: 'Invalid date' });
-        return;
-    }
-
-    const parsedMilage = parseInt(milage);
-    if (isNaN(parsedMilage)) {
-        console.log('[server]: Milage is not a number');
-        res.status(400).json({ error: 'Milage is not a number' });
-        return;
-    }
-
-    const lastTank = await tanksCollection.find({ familyId: new ObjectId(familyId) }).sort({ date: -1 }).limit(1).toArray();
-    const trips = await tripsCollection.find({
-        date: {
-            $gte: lastTank?.[0]?.date,
-            $lte: parsedDate
-        },
-        userId: new ObjectId(user?._id)
-    }).toArray();
-
-    const tank: Tank = {
-        familyId: new ObjectId(family?._id),
-        payedUserId: new ObjectId(user?._id),
-        cost: parsedCost,
-        date: parsedDate,
-        trips: trips.map(trip => new ObjectId(trip._id)),
-        milage: parsedMilage,
-        users: trips.map(trip => ({ userId: new ObjectId(trip.userId), payed: false }))
-    };
-
-    const result = await tanksCollection.insertOne(tank);
-
-    if (!result.acknowledged) {
-        console.log('[server]: Error inserting tank');
-        res.status(500).json({ error: 'Error inserting tank' });
-        return;
-    } else {
-        console.log('[server]: Tank inserted');
-        res.status(200).json({ message: 'Tank inserted' });
-    }
-})
-app.delete('/api/tank/delete', async (req, res) => {
-    const user = await userCollection.findOne({ email: req.body.userEmail });
-    if (!user) {
-        console.log('[server]: User not found');
-        res.status(404).json({ error: 'User not found' });
-        return;
-    }
-    const tankId: string = req.body.tankId;
-    if (!tankId) {
-        console.log('[server]: Tank ID not found');
-        res.status(400).json({ error: 'Tank ID not found' });
-        return;
-    }
-    const result = await tanksCollection.deleteOne({ _id: new ObjectId(tankId) });
-    if (!result.acknowledged) {
-        console.log('[server]: Error deleting tank');
-        res.status(500).json({ error: 'Error deleting tank' });
-        return;
-    } else {
-        console.log('[server]: Tank deleted');
-        res.status(200).json({ message: 'Tank deleted' });
-    }
-})
-app.listen(port, async () => {
-    console.log("[server]: Connecting to database");
+app.use("/api/users", LoginRouters());
+app.use("/api/cars", CarsRouters());
+const server = app.listen(port, async () => {
     await connect();
-    console.log(`[server]: listening on port ${port}`);
+    console.log(`Example app listening at http://localhost:${port}`);
+
 });
+const gracefulShutdown = async () => {
+    console.log("Shutting down gracefully...");
+    server.close(async () => {
+        await disconnect();
+        console.log("Server and database connections closed.");
+        process.exit(0);
+    });
+};
+process.on("SIGINT", gracefulShutdown);
+process.on("SIGTERM", gracefulShutdown);

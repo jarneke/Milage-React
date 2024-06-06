@@ -31,5 +31,16 @@ export interface Car {
     model: string;
     brand: string;
     totalMilage: number;
+    family: ObjectId;
+}
+export interface Family {
+    _id?: ObjectId;
+    cars: ObjectId[];
     members: ObjectId[];
 }
+export interface AlertType {
+    show: boolean;
+    type: "Error" | "Success" | "Info" | "Warning" | "";
+    message: string;
+}
+

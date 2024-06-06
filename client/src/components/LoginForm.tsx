@@ -4,12 +4,8 @@ import React, { useEffect, useState } from "react";
 import LabelFor from "./LabelFor";
 import Button from "@mui/joy/Button";
 import MultiAlert from "./MultiAlert";
+import { AlertType } from "../types";
 
-interface AlertType {
-  show: boolean;
-  type: "Error" | "Success" | "Info" | "Warning" | "";
-  message: string;
-}
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,9 +19,6 @@ function LoginForm() {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      console.log(decodedToken.exp * 1000);
-      console.log(Date.now());
-
       if (decodedToken.exp * 1000 > Date.now()) {
         window.location.href = "/app";
       }
@@ -39,13 +32,11 @@ function LoginForm() {
   };
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+    setAlert({ show: false, type: "", message: "" });
     try {
       const response = await fetch("/api/users/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -58,7 +49,16 @@ function LoginForm() {
       localStorage.setItem("token", token);
       window.location.href = "/app";
     } catch (error: any) {
-      setAlert({ show: true, type: "Error", message: error.message });
+      console.log(error);
+      if (!error.message.includes("not valid JSON")) {
+        setAlert({ show: true, type: "Error", message: error.message });
+      } else {
+        setAlert({
+          show: true,
+          type: "Error",
+          message: "Failed to fetch data, Do you have internet connection?",
+        });
+      }
     }
   };
   return (

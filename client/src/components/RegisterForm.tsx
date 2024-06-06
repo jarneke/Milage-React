@@ -51,6 +51,7 @@ function RegisterForm() {
     setPasswordMatch(event.target.value === password);
   }
   async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+    setAlert({ show: false, type: "", message: "" });
     event.preventDefault();
     if (fName === "" || lName === "" || email === "" || password === "") {
       setAlert({
@@ -86,6 +87,9 @@ function RegisterForm() {
         type: "Success",
         message: "Account created successfully",
       });
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 3000);
     } catch (error: any) {
       setAlert({ show: true, type: "Error", message: error.message });
     }
