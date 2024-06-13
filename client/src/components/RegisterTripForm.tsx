@@ -10,6 +10,11 @@ function RegisterTripForm() {
     type: "",
     message: "",
   });
+  const [car, setCar] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [start, setStart] = useState<string>("");
+  const [end, setEnd] = useState<string>("");
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -47,7 +52,25 @@ function RegisterTripForm() {
         setAlert({ type: "Error", message: e.message, show: true });
       });
   }, []);
-  async function handleSubmit() {}
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setAlert({ show: false, type: "Success", message: "test" });
+    const post = await fetch("/api/trip", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        car_id: car,
+        date,
+        start,
+        end,
+      }),
+    });
+    const res = await post.json();
+    console.log(res);
+  }
   return (
     <>
       <MultiAlert show={alert.show} type={alert.type} message={alert.message} />
@@ -57,11 +80,17 @@ function RegisterTripForm() {
           <Button>Register a new car</Button>
         </div>
       ) : (
-        <form onSubmit={() => handleSubmit()}>
+        <form onSubmit={(e) => handleSubmit(e)}>
           <label className="form-label" htmlFor="car">
             Car
           </label>
-          <select className="form-select" name="car" id="car">
+          <select
+            className="form-select"
+            name="car"
+            id="car"
+            required
+            onChange={(e) => setCar(e.target.value)}
+          >
             {cars.map((car) => (
               <option key={car.car_id} value={car.car_id}>
                 {car.make + " " + car.model}
@@ -71,7 +100,14 @@ function RegisterTripForm() {
           <label className="form-label" htmlFor="date">
             Date
           </label>
-          <input className="form-control" type="date" name="date" id="date" />
+          <input
+            className="form-control"
+            type="date"
+            name="date"
+            id="date"
+            required
+            onChange={(e) => setDate(e.target.value)}
+          />
           <label className="form-label" htmlFor="start">
             Start
           </label>
@@ -80,12 +116,23 @@ function RegisterTripForm() {
             type="number"
             name="start"
             id="start"
+            required
+            onChange={(e) => setStart(e.target.value)}
           />
           <label className="form-label" htmlFor="end">
             End
           </label>
-          <input className="form-control" type="number" name="end" id="end" />
-          <Button type="submit">Register</Button>
+          <input
+            className="form-control"
+            type="number"
+            name="end"
+            id="end"
+            required
+            onChange={(e) => setEnd(e.target.value)}
+          />
+          <Button className="mt-3" type="submit">
+            Register
+          </Button>
         </form>
       )}
     </>

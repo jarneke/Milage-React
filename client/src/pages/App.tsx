@@ -4,7 +4,7 @@ import Collapsible from "../components/Collapsible";
 import RegisterTripForm from "../components/RegisterTripForm";
 
 function AppPage() {
-  document.title = "Milage | App";
+  document.title = "Milage | Dashboard";
 
   return (
     <>

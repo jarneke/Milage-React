@@ -26,7 +26,7 @@ function MultiAlert({ type, message, show }: props) {
           <Alert
             className="col-12"
             style={{
-              backgroundColor: "#FF000055",
+              backgroundColor: "#00ff0055",
               color: "#F0F0F0",
             }}
             startDecorator={<CheckIcon />}
@@ -37,7 +37,7 @@ function MultiAlert({ type, message, show }: props) {
           <Alert
             className="col-12"
             style={{
-              backgroundColor: "#FF000055",
+              backgroundColor: "#0000ff55",
               color: "#F0F0F0",
             }}
             startDecorator={<InfoIcon />}

@@ -13,7 +13,7 @@ export default function authenticateToken(req: Request, res: Response, next: Nex
 
     jwt.verify(token, JWT_KEY, (err: any, user: any) => {
         if (err) return res.sendStatus(403);
-        req.body.email = user.email;
+        req.body.user = user;
         return next();
     });
 };

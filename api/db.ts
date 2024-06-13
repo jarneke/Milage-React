@@ -53,13 +53,21 @@ async function seedDbWithTempData() {
             model: 'B180',
             year: 2006
         };
+        const tempCar2 = {
+            make: 'Toyota',
+            model: 'Corola',
+            year: 2022
+        };
 
         const carQuery = `INSERT INTO cars (make, model, year) VALUES ($1, $2, $3) RETURNING car_id`;
         const carResult = await client.query(carQuery, [tempCar.make, tempCar.model, tempCar.year]);
+        const carResult2 = await client.query(carQuery, [tempCar2.make, tempCar2.model, tempCar2.year]);
         const carId = carResult.rows[0].car_id;
+        const carId2 = carResult2.rows[0].car_id;
 
         const usersCarsQuery = `INSERT INTO users_cars (user_id, car_id) VALUES ($1, $2)`;
         await client.query(usersCarsQuery, [adminUserId, carId]);
+        await client.query(usersCarsQuery, [adminUserId, carId2]);
 
         console.log("Temporary car added and linked to admin user");
 

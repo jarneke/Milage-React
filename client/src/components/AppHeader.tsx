@@ -1,10 +1,9 @@
-import { IconButton, Tooltip } from "@mui/joy";
+import { Button, IconButton, Tooltip } from "@mui/joy";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/Person";
 import AppsIcon from "@mui/icons-material/Apps";
 import LogoutIcon from "@mui/icons-material/Logout";
-import GroupsIcon from "@mui/icons-material/Groups";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import RouteIcon from "@mui/icons-material/Route";
 import MenuElem from "./MenuElem";
@@ -56,7 +55,104 @@ function AppHeader({ className, imageUrl, appName, navItems }: Props) {
             <span style={{ color: "#FFA500" }}>.</span>
           </h1>
         </a>
-        <div>
+        <div
+          className="d-none d-md-grid"
+          style={{
+            display: "grid",
+            gap: "15px",
+            gridTemplateColumns: "repeat(5, 1fr)",
+          }}
+        >
+          <Tooltip title="Dashboard">
+            <IconButton
+              onClick={() => (window.location.href = "/app")}
+              type="button"
+              style={{
+                color: "#FFFFFF",
+                backgroundColor: "#21303b",
+                border: "2px solid #FFFFFF",
+              }}
+            >
+              <AppsIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="My Cars">
+            <IconButton
+              onClick={() => (window.location.href = "/app/cars")}
+              type="button"
+              style={{
+                position: "relative",
+                color: "#FFFFFF",
+                backgroundColor: "#21303b",
+                border: "2px solid #FFFFFF",
+              }}
+            >
+              <DirectionsCarIcon
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%) translate(-2px, 2px)",
+                }}
+              />
+              <DirectionsCarIcon
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%) translate(2px, -2px)",
+                  color: "#FFFFFF99",
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="My Trips">
+            <IconButton
+              onClick={() => (window.location.href = "/app/trips")}
+              type="button"
+              style={{
+                color: "#FFFFFF",
+                backgroundColor: "#21303b",
+                border: "2px solid #FFFFFF",
+              }}
+            >
+              <RouteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Profile">
+            <IconButton
+              onClick={() => (window.location.href = "/app/profile")}
+              type="button"
+              style={{
+                color: "#FFFFFF",
+                backgroundColor: "#21303b",
+                border: "2px solid #FFFFFF",
+              }}
+            >
+              <PersonIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Logout" style={{ backgroundColor: "#FF4D4D" }}>
+            <IconButton
+              sx={{
+                "--IconButton-size": "50px",
+              }}
+              onClick={() => {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+              }}
+              type="button"
+              style={{
+                color: "#FF4D4D",
+                backgroundColor: "#21303b",
+                border: "2px solid #FF4D4D",
+              }}
+            >
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
+        <div className="justify-content-between align-items-center d-flex d-md-none">
           <Tooltip title="Menu">
             <IconButton
               type="button"
@@ -110,115 +206,147 @@ function AppHeader({ className, imageUrl, appName, navItems }: Props) {
               <CloseIcon sx={{ color: "#FFFFFF" }} />
             </IconButton>
           </div>
-          <div
-            className="d-flex justify-content-between p-2 w-100 align-items-center"
-            style={{ backgroundColor: "#21303b" }}
-          >
-            <Tooltip title="Home">
-              <IconButton
-                onClick={() => (window.location.href = "/app")}
-                type="button"
-                style={{
-                  color: "#FFFFFF",
-                  backgroundColor: "#21303b",
-                  border: "2px solid #FFFFFF",
-                }}
-              >
-                <AppsIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="My Groups">
-              <IconButton
-                onClick={() => (window.location.href = "/app/groups")}
-                type="button"
-                style={{
-                  color: "#FFFFFF",
-                  backgroundColor: "#21303b",
-                  border: "2px solid #FFFFFF",
-                }}
-              >
-                <GroupsIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="My Cars">
-              <IconButton
-                onClick={() => (window.location.href = "/app/cars")}
-                type="button"
-                style={{
-                  position: "relative",
-                  color: "#FFFFFF",
-                  backgroundColor: "#21303b",
-                  border: "2px solid #FFFFFF",
-                }}
-              >
-                <DirectionsCarIcon
-                  style={{
-                    position: "absolute",
-                    left: "50%",
-                    top: "50%",
-                    transform: "translate(-50%, -50%) translate(-2px, 2px)",
-                  }}
-                />
-                <DirectionsCarIcon
-                  style={{
-                    position: "absolute",
-                    left: "50%",
-                    top: "50%",
-                    transform: "translate(-50%, -50%) translate(2px, -2px)",
-                    color: "#FFFFFF99",
-                  }}
-                />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="My Trips">
-              <IconButton
-                onClick={() => (window.location.href = "/app/trips")}
-                type="button"
-                style={{
-                  color: "#FFFFFF",
-                  backgroundColor: "#21303b",
-                  border: "2px solid #FFFFFF",
-                }}
-              >
-                <RouteIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Profile">
-              <IconButton
-                onClick={() => (window.location.href = "/app/profile")}
-                type="button"
-                style={{
-                  color: "#FFFFFF",
-                  backgroundColor: "#21303b",
-                  border: "2px solid #FFFFFF",
-                }}
-              >
-                <PersonIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Logout" style={{ backgroundColor: "#FF4D4D" }}>
-              <IconButton
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  window.location.href = "/login";
-                }}
-                type="button"
-                style={{
-                  color: "#FF4D4D",
-                  backgroundColor: "#21303b",
-                  border: "2px solid #FF4D4D",
-                }}
-              >
-                <LogoutIcon />
-              </IconButton>
-            </Tooltip>
-          </div>
         </div>
         <div
           className="offcanvas-body d-flex flex-column gap-2"
           style={{ backgroundColor: "#21303b99" }}
         >
-          {navElems}
+          <Button
+            className="justify-content-start ps-5"
+            onClick={() => (window.location.href = "/app")}
+            type="button"
+            style={{
+              fontSize: "2rem",
+              color: "#FFFFFF",
+              backgroundColor: "#21303b",
+              border: "2px solid #FFFFFF",
+            }}
+            startDecorator={
+              <AppsIcon
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
+              />
+            }
+          >
+            {" "}
+            Dashboard
+          </Button>
+          <Button
+            className="justify-content-start ps-5"
+            onClick={() => (window.location.href = "/app/cars")}
+            type="button"
+            style={{
+              fontSize: "2rem",
+              position: "relative",
+              color: "#FFFFFF",
+              backgroundColor: "#21303b",
+              border: "2px solid #FFFFFF",
+            }}
+            startDecorator={
+              <>
+                <DirectionsCarIcon
+                  style={{
+                    position: "absolute",
+                    left: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%) translate(-2px, 2px)",
+                  }}
+                />
+                <DirectionsCarIcon
+                  style={{
+                    position: "absolute",
+                    left: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%) translate(2px, -2px)",
+                    color: "#FFFFFF99",
+                  }}
+                />
+              </>
+            }
+          >
+            {" "}
+            Cars
+          </Button>
+          <Button
+            className="justify-content-start ps-5"
+            onClick={() => (window.location.href = "/app/trips")}
+            type="button"
+            style={{
+              fontSize: "2rem",
+              color: "#FFFFFF",
+              position: "relative",
+              backgroundColor: "#21303b",
+              border: "2px solid #FFFFFF",
+            }}
+            startDecorator={
+              <RouteIcon
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
+              />
+            }
+          >
+            {" "}
+            Trips
+          </Button>
+          <Button
+            className="justify-content-start ps-5"
+            onClick={() => (window.location.href = "/app/profile")}
+            type="button"
+            style={{
+              fontSize: "2rem",
+              color: "#FFFFFF",
+              backgroundColor: "#21303b",
+              border: "2px solid #FFFFFF",
+            }}
+            startDecorator={
+              <PersonIcon
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
+              />
+            }
+          >
+            {" "}
+            Profile
+          </Button>
+          <Button
+            className="justify-content-start ps-5"
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.href = "/login";
+            }}
+            type="button"
+            style={{
+              fontSize: "2rem",
+              color: "#FF4D4D",
+              backgroundColor: "#21303b",
+              border: "2px solid #FF4D4D",
+            }}
+            startDecorator={
+              <LogoutIcon
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
+              />
+            }
+          >
+            {" "}
+            Logout
+          </Button>
         </div>
       </div>
     </>

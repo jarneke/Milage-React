@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { client, connect, disconnect } from "./db";
 import LoginRouters from "./routers/login";
 import CarsRouters from "./routers/cars";
+import TripsRouter from "./routers/trips";
 
 dotenv.config();
 export const JWT_KEY: string = `${process.env.JWT_SECRET}`;
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", LoginRouters());
 app.use("/api/cars", CarsRouters());
+app.use("/api/trips", TripsRouter());
 const server = app.listen(port, async () => {
     await connect();
     console.log(`Example app listening at http://localhost:${port}`);
