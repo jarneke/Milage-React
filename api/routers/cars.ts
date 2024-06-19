@@ -8,7 +8,7 @@ export default function CarsRouters() {
         try {
 
             const query = `
-      SELECT cars.car_id, cars.make, cars.model, cars.year
+      SELECT cars.car_id, cars.make, cars.model, cars.year, cars.owner
       FROM users
       JOIN users_cars ON users.user_id = users_cars.user_id
       JOIN cars ON users_cars.car_id = cars.car_id

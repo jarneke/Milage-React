@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { Client } from "pg";
-import { User } from "./types";
+import { User, Car } from "./types";
 import bcrypt from "bcrypt";
 
 dotenv.config();
@@ -48,20 +48,24 @@ async function seedDbWithTempData() {
 
     // Create a temporary car object and link it to the admin user
     if (adminUserId !== null) {
+        console.log(adminUserId);
+
         const tempCar = {
             make: 'Mercedes',
             model: 'B180',
-            year: 2006
+            year: 2006,
+            owner: adminUserId
         };
         const tempCar2 = {
             make: 'Toyota',
             model: 'Corola',
-            year: 2022
+            year: 2022,
+            owner: adminUserId
         };
 
-        const carQuery = `INSERT INTO cars (make, model, year) VALUES ($1, $2, $3) RETURNING car_id`;
-        const carResult = await client.query(carQuery, [tempCar.make, tempCar.model, tempCar.year]);
-        const carResult2 = await client.query(carQuery, [tempCar2.make, tempCar2.model, tempCar2.year]);
+        const carQuery = `INSERT INTO cars (make, model, year, owner) VALUES ($1, $2, $3, $4) RETURNING car_id`;
+        const carResult = await client.query(carQuery, [tempCar.make, tempCar.model, tempCar.year, tempCar.owner]);
+        const carResult2 = await client.query(carQuery, [tempCar2.make, tempCar2.model, tempCar2.year, tempCar2.owner]);
         const carId = carResult.rows[0].car_id;
         const carId2 = carResult2.rows[0].car_id;
 
@@ -153,7 +157,7 @@ async function createUsersTable() {
 }
 
 async function createCarsTable() {
-    await client.query(`CREATE TABLE cars (car_id SERIAL PRIMARY KEY,make VARCHAR(255) NOT NULL,model VARCHAR(255) NOT NULL,year INT NOT NULL);`);
+    await client.query<Car>(`CREATE TABLE cars (car_id SERIAL PRIMARY KEY,make VARCHAR(255) NOT NULL,model VARCHAR(255) NOT NULL,year INT NOT NULL, owner INT REFERENCES users(user_id));`);
     console.log("Cars table created");
 }
 
