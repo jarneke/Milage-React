@@ -43,6 +43,9 @@ cd Milage-React
 Install the required dependencies
 
 ```bash
+cd client
+npm install
+cd ../api
 npm install
 ```
 
